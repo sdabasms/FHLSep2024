@@ -1,0 +1,113 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Header Files\queryprocessing">
+      <UniqueIdentifier>{a530c403-3291-4ca6-be07-e3362af0361c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\common">
+      <UniqueIdentifier>{0b227740-8726-47b0-b2f1-419e3f99604a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\interfaces">
+      <UniqueIdentifier>{d74381a0-890b-4961-b0a4-41c9e2b69cd0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\queryprocessing">
+      <UniqueIdentifier>{a92fb190-6ea1-45b4-a160-7ed26fda2dc9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\storeng">
+      <UniqueIdentifier>{9e88adcb-4819-421d-99ce-b08d534df2a6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\storeng">
+      <UniqueIdentifier>{f8c3fb4b-4821-4dc7-a32d-b249552ceaf0}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="common\value.h">
+      <Filter>Header Files\common</Filter>
+    </ClInclude>
+    <ClInclude Include="interfaces\ioperator.h">
+      <Filter>Header Files\interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="interfaces\iexpression.h">
+      <Filter>Header Files\interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="storeng\page.h">
+      <Filter>Header Files\storeng</Filter>
+    </ClInclude>
+    <ClInclude Include="storeng\buffer.h">
+      <Filter>Header Files\storeng</Filter>
+    </ClInclude>
+    <ClInclude Include="storeng\btree.h">
+      <Filter>Header Files\storeng</Filter>
+    </ClInclude>
+    <ClInclude Include="storeng\btreesession.h">
+      <Filter>Header Files\storeng</Filter>
+    </ClInclude>
+    <ClInclude Include="interfaces\istorage.h">
+      <Filter>Header Files\interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="queryprocessing\project.h">
+      <Filter>Header Files\queryprocessing</Filter>
+    </ClInclude>
+    <ClInclude Include="queryprocessing\sort.h">
+      <Filter>Header Files\queryprocessing</Filter>
+    </ClInclude>
+    <ClInclude Include="queryprocessing\aggregate.h">
+      <Filter>Header Files\queryprocessing</Filter>
+    </ClInclude>
+    <ClInclude Include="queryprocessing\btreescanner.h">
+      <Filter>Header Files\queryprocessing</Filter>
+    </ClInclude>
+    <ClInclude Include="queryprocessing\constscan.h">
+      <Filter>Header Files\queryprocessing</Filter>
+    </ClInclude>
+    <ClInclude Include="queryprocessing\filter.h">
+      <Filter>Header Files\queryprocessing</Filter>
+    </ClInclude>
+    <ClInclude Include="queryprocessing\join.h">
+      <Filter>Header Files\queryprocessing</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="queryprocessing\aggregate.cpp">
+      <Filter>Source Files\queryprocessing</Filter>
+    </ClCompile>
+    <ClCompile Include="queryprocessing\join.cpp">
+      <Filter>Source Files\queryprocessing</Filter>
+    </ClCompile>
+    <ClCompile Include="queryprocessing\project.cpp">
+      <Filter>Source Files\queryprocessing</Filter>
+    </ClCompile>
+    <ClCompile Include="queryprocessing\sort.cpp">
+      <Filter>Source Files\queryprocessing</Filter>
+    </ClCompile>
+    <ClCompile Include="storeng\btree.cpp">
+      <Filter>Source Files\storeng</Filter>
+    </ClCompile>
+    <ClCompile Include="storeng\page.cpp">
+      <Filter>Source Files\storeng</Filter>
+    </ClCompile>
+    <ClCompile Include="storeng\btreesession.cpp">
+      <Filter>Source Files\storeng</Filter>
+    </ClCompile>
+    <ClCompile Include="storeng\buffer.cpp">
+      <Filter>Source Files\storeng</Filter>
+    </ClCompile>
+    <ClCompile Include="queryprocessing\constscan.cpp">
+      <Filter>Source Files\queryprocessing</Filter>
+    </ClCompile>
+    <ClCompile Include="queryprocessing\filter.cpp">
+      <Filter>Source Files\queryprocessing</Filter>
+    </ClCompile>
+    <ClCompile Include="queryprocessing\btreescanner.cpp">
+      <Filter>Source Files\queryprocessing</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

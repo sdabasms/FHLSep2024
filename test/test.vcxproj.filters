@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="gtest.cpp" />
+    <ClCompile Include="storeng\btree.cpp">
+      <Filter>storeng</Filter>
+    </ClCompile>
+    <ClCompile Include="functional\e2e.cpp" />
+    <ClCompile Include="operators\filter.cpp">
+      <Filter>operators</Filter>
+    </ClCompile>
+    <ClCompile Include="operators\join.cpp">
+      <Filter>operators</Filter>
+    </ClCompile>
+    <ClCompile Include="operators\project.cpp">
+      <Filter>operators</Filter>
+    </ClCompile>
+    <ClCompile Include="operators\constscan.cpp">
+      <Filter>operators</Filter>
+    </ClCompile>
+    <ClCompile Include="operators\sort.cpp">
+      <Filter>operators</Filter>
+    </ClCompile>
+    <ClCompile Include="operators\streamaggregate.cpp">
+      <Filter>operators</Filter>
+    </ClCompile>
+    <ClCompile Include="operators\btreescanner.cpp">
+      <Filter>operators</Filter>
+    </ClCompile>
+    <ClCompile Include="queries\queries1.cpp">
+      <Filter>queries</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="pch.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="storeng">
+      <UniqueIdentifier>{e01d9d49-8c99-4a97-b8a3-95506e1c8817}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="operators">
+      <UniqueIdentifier>{23b69c9f-b827-4042-a211-2a076b9de6f7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="queries">
+      <UniqueIdentifier>{0db96b5a-bae9-4f64-9ca9-716236b1d553}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
