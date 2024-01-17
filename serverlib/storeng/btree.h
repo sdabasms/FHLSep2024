@@ -55,7 +55,7 @@ namespace SE
 
 		// Find the page into which a scan or insert needs to go.
 		//
-		Page* Position(Value val, bool forInsert);
+		Page* Position(Value val);
 
 		// Metadata about the BTree which help traverse the tree.
 		//
