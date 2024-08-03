@@ -6,6 +6,7 @@ namespace SE
 {
 	typedef unsigned int PageId;
 	class Page;
+	const PageId NULL_PAGE_ID = 0;
 
 	// This class implements a BTree structure. It is currently in-memory.
 	// Each row contains one 'Value' which is also the key.

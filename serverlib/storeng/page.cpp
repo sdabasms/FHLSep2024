@@ -30,7 +30,7 @@ namespace SE
 		}
 
 		Value* newVal = (Value*)((m_data)+(m_slotCount * sizeof(Value) * numCols));
-		
+
 		for (unsigned int i = 0; i < numCols; i++)
 		{
 			newVal[i] = val[i];
