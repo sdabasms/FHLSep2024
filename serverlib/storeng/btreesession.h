@@ -26,6 +26,12 @@ namespace SE
 		//
 		PageId m_currentPageId;
 		unsigned int m_currentSlot;
+		Value m_lastKey;
+		Buf* m_buf;
+
+		// Maintain the queue of pages which has been latched,
+		//
+		std::deque<Buf*> m_LatchedBufs;
 		BTree* m_btree;
 	};
 }

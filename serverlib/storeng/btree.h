@@ -1,12 +1,17 @@
+#include <deque>
 #include "common/value.h"
+#include "buffer.h"
 
 #pragma once
 
 namespace SE
 {
-	typedef unsigned int PageId;
-	class Page;
-	const PageId NULL_PAGE_ID = 0;
+	enum Operation
+	{
+		READ_OPERATION,
+		WRITE_OPERATION,
+		INVALID_OPERATION
+	};
 
 	// This class implements a BTree structure. It is currently in-memory.
 	// Each row contains one 'Value' which is also the key.
@@ -16,11 +21,6 @@ namespace SE
 	public:
 		BTree();
 		BTree(unsigned int numCols);
-
-		// Implement accessors to get rows from the tree.
-		//
-		Page* GetFirstLeafPage();
-		Value* GetRow(PageId* pageId, unsigned int* slot);
 
 		// Insert rows into the tree.
 		//
@@ -32,6 +32,8 @@ namespace SE
 			return m_numCols;
 		}
 
+		Value* GetNextRow(Value lastKey, std::deque<Buf*> &latchedBufs, Buf** buf);
+
 	private:
 
 		// Check if a page's level is the root level of this tree.
@@ -41,9 +43,23 @@ namespace SE
 			return (level == m_rootLevel);
 		}
 
+		// Get the desired latch on the root page.
+		//
+		Buf* LatchRoot(LatchType type);
+
+		// Update root page id and level
+		//
+		void UpdateRoot(PageId newRootPageId, unsigned int level)
+		{
+			m_lock.Lock();
+			m_rootPageID = newRootPageId;
+			m_rootLevel = level;
+			m_lock.Lock();
+		}
+
 		// Split the page that would contain the Value val.
 		//
-		void Split(Value val);
+		void Split(Value val, std::deque<Buf*> latchedBufs);
 
 		// Transfer the rows from one page to another during split.
 		//
@@ -52,19 +68,27 @@ namespace SE
 
 		// Find the child page within an internal page during traversal.
 		//
-		Page* FindChildPage(Page* page, Value val);
+		Buf* FindChildPage(Page* page, Value val);
 
-		// Find the page into which a scan or insert needs to go.
+		// Find the page into which a scan needs to go.
 		//
-		Page* Position(Value val);
+		Buf* Position(Value val, std::deque<Buf*> &latchedBufs, bool forInsert);
+
+		// Find the page into which a insert needs to go.
+		//
+		Buf* PositionForInsert(Value val, std::deque<Buf*> &latchedBufs);
 
 		// Metadata about the BTree which help traverse the tree.
 		//
-		unsigned int m_rootPageID;
+		PageId m_rootPageID;
 		unsigned int m_rootLevel;
 
 		// Number of 'Value' columns present in each row.
 		//
 		unsigned int m_numCols;
+
+		// spinLock to control access to root page
+		//
+		SpinLock m_lock;
 	};
 }

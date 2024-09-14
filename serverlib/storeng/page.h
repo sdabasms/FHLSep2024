@@ -3,10 +3,16 @@
 #include <map>
 #include <assert.h>
 #include "common/value.h"
-#include "btreesession.h"
+//#include "btreesession.h"
+
+#pragma once
 
 namespace SE
 {
+	typedef unsigned int PageId;
+	class Page;
+	const PageId NULL_PAGE_ID = 0;
+
 	// Record structure for index page.
 	//
 	struct IndexPagePayload
