@@ -146,7 +146,7 @@
     <ClInclude Include="interfaces\iexpression.h" />
     <ClInclude Include="interfaces\ioperator.h" />
     <ClInclude Include="interfaces\istorage.h" />
-    <ClInclude Include="Latch.h" />
+    <ClInclude Include="storeng\Latch.h" />
     <ClInclude Include="queryprocessing\aggregate.h" />
     <ClInclude Include="queryprocessing\btreescanner.h" />
     <ClInclude Include="queryprocessing\constscan.h" />
@@ -160,7 +160,7 @@
     <ClInclude Include="storeng\page.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Latch.cpp" />
+    <ClCompile Include="storeng\Latch.cpp" />
     <ClCompile Include="queryprocessing\aggregate.cpp" />
     <ClCompile Include="queryprocessing\btreescanner.cpp" />
     <ClCompile Include="queryprocessing\constscan.cpp" />
