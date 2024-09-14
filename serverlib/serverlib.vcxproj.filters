@@ -74,7 +74,7 @@
     <ClInclude Include="queryprocessing\join.h">
       <Filter>Header Files\queryprocessing</Filter>
     </ClInclude>
-    <ClInclude Include="Latch.h">
+    <ClInclude Include="storeng\Latch.h">
       <Filter>Header Files\storeng</Filter>
     </ClInclude>
   </ItemGroup>
@@ -112,7 +112,7 @@
     <ClCompile Include="queryprocessing\btreescanner.cpp">
       <Filter>Source Files\queryprocessing</Filter>
     </ClCompile>
-    <ClCompile Include="Latch.cpp">
+    <ClCompile Include="storeng\Latch.cpp">
       <Filter>Source Files\storeng</Filter>
     </ClCompile>
   </ItemGroup>

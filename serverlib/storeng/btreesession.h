@@ -24,8 +24,6 @@ namespace SE
 
 		// Store progress of the scan.
 		//
-		PageId m_currentPageId;
-		unsigned int m_currentSlot;
 		Value m_lastKey;
 		Buf* m_buf;
 

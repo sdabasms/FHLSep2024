@@ -5,7 +5,7 @@
 //
 void SpinLock::Lock()
 {
-    while (m_lock.test_and_set()) {}
+    while (m_lock.test_and_set(std::memory_order_acquire)) {}
     m_ownerId = std::this_thread::get_id();
 }
 
@@ -14,7 +14,7 @@ void SpinLock::Lock()
 void SpinLock::Unlock()
 {
     assert(std::this_thread::get_id() == m_ownerId);
-    m_lock.clear();
+    m_lock.clear(std::memory_order_release);
 }
 
 void Latch::AcquireLatch(LatchType type)

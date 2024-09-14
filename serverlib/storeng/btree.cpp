@@ -133,6 +133,9 @@ namespace SE
 			{
 				break;
 			}
+
+			slot++;
+			row = page->GetRow(slot, m_numCols);
 		}
 
 		// If the next row resides on the next page, then move to the next page
@@ -141,9 +144,9 @@ namespace SE
 		if (slot == slotCount)
 		{
 			slot = 0;
+			PageId pageId = page->GetNextPageId();
 			buffer = nullptr;
 			page = nullptr;
-			PageId pageId = page->GetNextPageId();
 
 			if (pageId != 0)
 			{
@@ -178,7 +181,7 @@ namespace SE
 
 	// Split the tree based on the value provided.
 	//
-	void BTree::Split(Value val, std::deque<Buf*> latchedBufs)
+	void BTree::Split(Value val, std::deque<Buf*> &latchedBufs)
 	{
 		// We have the queue of buffers EX latched which needs to be split.
 		// The first page in the queue doesn't need split, split from next page onwards.
@@ -259,14 +262,14 @@ namespace SE
 
 				Buf* newBuf = GetGlobalBufferPool()->GetNewPage(0);
 				Page* newPage = newBuf->GetPage();
-				
-				Buf* nextBuf = (page->GetNextPageId() == 0) ? nullptr : GetGlobalBufferPool()->FindPage(page->GetNextPageId());
-				nextBuf->FixPage(EX_LATCH);
-				Page* nextPage = (nextBuf != nullptr) ? nextBuf->GetPage() : nullptr;
-
 				newPage->SetNextPageId(page->GetNextPageId());
-				if (nullptr != nextPage)
+
+				Buf* nextBuf = (page->GetNextPageId() == 0) ? nullptr : GetGlobalBufferPool()->FindPage(page->GetNextPageId());
+
+				if (nullptr != nextBuf)
 				{
+					nextBuf->FixPage(EX_LATCH);
+					Page* nextPage = nextBuf->GetPage();
 					nextPage->SetPrevPageId(newPage->GetPageId());
 					nextBuf->Release();
 				}

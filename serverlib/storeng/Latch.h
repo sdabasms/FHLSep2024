@@ -17,23 +17,24 @@ public:
 	void Unlock();
 
 private:
-	std::atomic_flag m_lock;
-	std::thread::id m_ownerId;
+	std::atomic_flag m_lock = ATOMIC_FLAG_INIT;
+	std::thread::id m_ownerId = std::this_thread::get_id();
 };
 
 class Latch
 {
 public:
+
 	void AcquireLatch(LatchType type);
 	void Release();
 	void UpdateLatch();
 	
 private:
 	SpinLock m_lock;
-	std::thread::id m_ownerId;
+	std::thread::id m_ownerId = std::this_thread::get_id();
 
-	int m_countShHolders;
-	int m_countExHolders;
+	int m_countShHolders = 0;
+	int m_countExHolders = 0;
 
-	int m_countExWaiters;
+	int m_countExWaiters = 0;
 };

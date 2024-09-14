@@ -54,12 +54,12 @@ namespace SE
 			m_lock.Lock();
 			m_rootPageID = newRootPageId;
 			m_rootLevel = level;
-			m_lock.Lock();
+			m_lock.Unlock();
 		}
 
 		// Split the page that would contain the Value val.
 		//
-		void Split(Value val, std::deque<Buf*> latchedBufs);
+		void Split(Value val, std::deque<Buf*> &latchedBufs);
 
 		// Transfer the rows from one page to another during split.
 		//
