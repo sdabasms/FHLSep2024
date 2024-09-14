@@ -3,6 +3,43 @@
 */
 
 #include "pch.h"
+#include <thread>
+
+// Helper reader function
+//
+static void RunReader(SE::BTree* btree, int totalRows)
+{
+	// Create a session to iterate over the BTree created above.
+	//
+	SE::BTreeSession btreeSession(btree);
+
+	// Init the scan operator.
+	//
+	Qp::BTreeScanner btreeScanner(&btreeSession);
+
+	Qp::Project project(&btreeScanner, [](Value* rgval) {});
+	Value numRows = 0;
+	Value rgvals[3] = {};
+
+	btreeScanner.Open();
+	while (btreeScanner.GetRow(rgvals))
+	{
+		EXPECT_EQ(numRows, rgvals[0]);
+		EXPECT_EQ(numRows * 10, rgvals[1]);
+		EXPECT_EQ(numRows * 100, rgvals[2]);
+		++numRows;
+
+		// sleep for sometime
+		//
+		if (numRows % 10 == 0)
+		{
+			std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		}
+	}
+	btreeScanner.Close();
+
+	EXPECT_EQ(totalRows, numRows);
+}
 
 // Tests that the scanner that projects all rows from a tree.
 //
@@ -186,3 +223,47 @@ TEST(BTreeSeTestSuite, BtreeIndexSplit)
 
 	EXPECT_EQ(totalRows, numRows);
 }
+
+// Test to cover multiple threads read
+//
+TEST(BTreeSeTestSuite, BtreeIndexMultipleReaders)
+{
+	// Create a value array to hold data.
+	//
+	const int nCols = 3;
+	Value rgvals[nCols] = {};
+	unsigned int totalRows = 2000;
+
+	// Create a BTree with rows.
+	//
+	SE::BTree btree(nCols);
+
+	for (Value i = 0; i < totalRows; i++)
+	{
+		rgvals[0] = i;
+		rgvals[1] = i * 10;
+		rgvals[2] = i * 100;
+
+		btree.InsertRow(rgvals);
+	}
+
+	const int numThreads = 10;
+	std::vector<std::thread> threads;
+	
+	for (int i = 0; i < numThreads; i++)
+	{
+		std::thread t(RunReader, &btree, totalRows);
+		threads.push_back(move(t));
+	}
+	
+	for (int i = 0; i < numThreads; i++)
+	{
+		threads[i].join();
+	}
+}
+
+// Test to cover multiple writes
+//
+
+// Test to cover writers along with readers in parallel
+//

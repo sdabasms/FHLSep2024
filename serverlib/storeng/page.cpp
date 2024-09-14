@@ -23,14 +23,25 @@ namespace SE
 	{
 		assert (IsLeafLevel());
 
-		if (m_slotCount > 0)
+		unsigned int slot = m_slotCount;
+
+		while (slot > 0)
 		{
-			Value* prevVal = (Value*)((m_data)+((m_slotCount-1) * sizeof(Value) * numCols));
-			assert(val[0] > prevVal[0]);
+			Value* prevVal = (Value*)((m_data)+((slot-1) * sizeof(Value) * numCols));
+			if (val[0] > prevVal[0])
+			{
+				break;
+			}
+			Value* nextVal = (Value*)((m_data)+(slot * sizeof(Value) * numCols));
+				
+			for (unsigned int i = 0; i < numCols; i++)
+			{
+				nextVal[i] = prevVal[i];
+			}
+			slot--;
 		}
 
-		Value* newVal = (Value*)((m_data)+(m_slotCount * sizeof(Value) * numCols));
-
+		Value* newVal = (Value*)((m_data)+(slot * sizeof(Value) * numCols));
 		for (unsigned int i = 0; i < numCols; i++)
 		{
 			newVal[i] = val[i];
@@ -43,7 +54,23 @@ namespace SE
 	{
 		assert(!IsLeafLevel());
 
-		IndexPagePayload* newRecord = (IndexPagePayload *)(m_data + (m_slotCount * sizeof(IndexPagePayload)));
+		unsigned int slot = m_slotCount;
+		while (slot > 0)
+		{
+			IndexPagePayload* prevRecord = (IndexPagePayload*)(m_data + ((slot-1) * sizeof(IndexPagePayload)));
+			if (beginVal > prevRecord->beginKey)
+			{
+				break;
+			}
+
+			IndexPagePayload* nextRecord = (IndexPagePayload*)(m_data + (slot * sizeof(IndexPagePayload)));
+			nextRecord->beginKey = prevRecord->beginKey;
+			nextRecord->pageID = prevRecord->pageID;
+
+			slot--;
+		}
+
+		IndexPagePayload* newRecord = (IndexPagePayload *)(m_data + (slot * sizeof(IndexPagePayload)));
 
 		newRecord->beginKey = beginVal;
 		newRecord->pageID = pageId;
