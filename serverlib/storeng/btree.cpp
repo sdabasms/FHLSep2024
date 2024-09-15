@@ -97,8 +97,6 @@ namespace SE
 		// Release latch on the page.
 		//
 		assert((latchedBufs.size() == 1) && (latchedBufs.front() == buf));
-		latchedBufs.pop_front();
-		buf->Release();
 	}
 
 	// Get the next row of the tree given a key.
@@ -180,6 +178,10 @@ namespace SE
 
 	// Split the tree based on the value provided.
 	//
+	//
+	// TODO: Add appropriate latches at different places
+	//
+	//
 	void BTree::Split(Value val, std::deque<Buf*> &latchedBufs)
 	{
 		// We have the queue of buffers EX latched which needs to be split.
@@ -237,20 +239,16 @@ namespace SE
 					//
 					parentPage->InsertIndexRow(rightVal, newPage->GetPageId());
 				}
-				
-				parentBuf->Release();
 
 				// Move to next level
 				//
 				if (val < rightVal)
 				{
 					parentBuf = buf;
-					newBuf->Release();
 				}
 				else
 				{
 					parentBuf = newBuf;
-					buf->Release();
 				}
 			}
 			else // split leaf page
@@ -265,11 +263,8 @@ namespace SE
 
 				if (nullptr != nextBuf)
 				{
-					nextBuf->FixPage(EX_LATCH);
 					Page* nextPage = nextBuf->GetPage();
 					nextPage->SetPrevPageId(newPage->GetPageId());
-					nextBuf->Release();
-					nextBuf = nullptr;
 				}
 				newPage->SetPrevPageId(page->GetPageId());
 				page->SetNextPageId(newPage->GetPageId());
@@ -307,10 +302,6 @@ namespace SE
 				// Rest all the buffers must have been released by this time.
 				//
 				assert(latchedBufs.empty());
-
-				parentBuf->Release();
-				newBuf->Release();
-				buf->Release();
 			}
 		}
 	}
@@ -395,6 +386,10 @@ namespace SE
 	// Find the page into which a scan needs to go.
 	// This will return a page whose buf container is SH latched.
 	//
+	//
+	// TODO: Add appropriate latches at different places
+	//
+	//
 	Buf* BTree::Position(Value val, bool forInsert, std::deque<Buf*> &latchedBufs)
 	{
 		// We must not hold any latch when starting the crab walk.
@@ -406,7 +401,7 @@ namespace SE
 		//
 		BufferPool* bufPool = GetGlobalBufferPool();
 		Buf* buf = LatchRoot(SH_LATCH);
-		latchedBufs.push_back(buf);
+		buf->Release();
 
 		Page* page = buf->GetPage();
 
@@ -417,34 +412,14 @@ namespace SE
 		//
 		if (forInsert && page->IsLeafLevel())
 		{
-			latchedBufs.pop_front();
-			buf->Release();
 			return PositionForInsert(val, latchedBufs);
 		}
 
 		while (!page->IsLeafLevel())
 		{
 			buf = FindChildPage(page, val);
-			
-			buf->FixPage(SH_LATCH);
-			latchedBufs.push_back(buf);
-
 			page = buf->GetPage();
 			assert(page != nullptr);
-
-			if (forInsert && page->IsLeafLevel())
-			{
-				// Update the latch to EX latch if we have reached to the desired leaf page
-				//
-				buf->Release();
-				buf->FixPage(EX_LATCH);
-			}
-
-			// Unlatch parent page
-			//
-			Buf* parentBuf = latchedBufs.front();
-			latchedBufs.pop_front();
-			parentBuf->Release();
 		}
 
 		// If positioning for read or inserting on non-full page, return the buffer
@@ -453,12 +428,6 @@ namespace SE
 		{
 			return buf;
 		}
-
-		// Release the latched page, then revert to unoptimized crab walk for inserts.
-		//
-		Buf* parentBuf = latchedBufs.front();
-		latchedBufs.pop_front();
-		parentBuf->Release();
 
 		assert(latchedBufs.empty());
 
@@ -469,6 +438,10 @@ namespace SE
 	// This will return the page whose buf is EX latched.
 	// The ancestors of the page could also be latched if there are chances of split.
 	//
+	//
+	// TODO: Add appropriate latches at different places
+	//
+	//
 	Buf* BTree::PositionForInsert(Value val, std::deque<Buf*> &latchedBufs)
 	{
 		// We must not hold any latch when starting the crab walk.
@@ -478,19 +451,14 @@ namespace SE
 		// then move on to the next page until reached to leaf page.
 		//
 		Buf* buf = LatchRoot(EX_LATCH);
-		latchedBufs.push_back(buf);
-
 		Page* page = buf->GetPage();
+		buf->Release();
 
 		assert((page != nullptr) && (page->GetLevel() == m_rootLevel));
 
 		while (!page->IsLeafLevel())
 		{
 			buf = FindChildPage(page, val);
-
-			buf->FixPage(EX_LATCH);
-			latchedBufs.push_back(buf);
-
 			page = buf->GetPage();
 			assert(page != nullptr);
 
@@ -498,12 +466,6 @@ namespace SE
 			//
 			if (!page->IsFull(m_numCols))
 			{
-				while (latchedBufs.size() > 1)
-				{
-					Buf* parentBuf = latchedBufs.front();
-					latchedBufs.pop_front();
-					parentBuf->Release();
-				}
 			}
 		}
 
