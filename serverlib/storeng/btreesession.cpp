@@ -45,6 +45,7 @@ namespace SE
 	//
 	void BTreeSession::Close()
 	{
+		assert(m_LatchedBufs.empty());
 		while (!m_LatchedBufs.empty())
 		{
 			Buf* buf = m_LatchedBufs.front();

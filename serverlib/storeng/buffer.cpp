@@ -5,6 +5,7 @@ namespace SE
 {
 	// Get a new page from buffer pool.
 	// Init the level of btree as part of it.
+	// The buffer returned is EX latched.
 	//
 	Buf* BufferPool::GetNewPage(
 		unsigned int level)
@@ -28,8 +29,11 @@ namespace SE
 	Buf* BufferPool::FindPage(
 		PageId pageID)
 	{
+		m_lock.Lock();
 		assert(pageID < m_nextPageID);
-		return m_buffers[pageID];
+		Buf* buf = m_buffers[pageID];
+		m_lock.Unlock();
+		return buf;
 	}
 
 	// Singleton buffer pool.

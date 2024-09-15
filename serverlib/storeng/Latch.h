@@ -27,7 +27,7 @@ public:
 
 	void AcquireLatch(LatchType type);
 	void Release();
-	void UpdateLatch();
+	bool IsExLatched() const;
 	
 private:
 	SpinLock m_lock;
@@ -38,3 +38,5 @@ private:
 
 	int m_countExWaiters = 0;
 };
+
+

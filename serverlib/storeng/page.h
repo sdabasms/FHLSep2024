@@ -62,6 +62,11 @@ namespace SE
 			return m_nextPageId;
 		}
 
+		PageId GetPrevPageId()
+		{
+			return m_prevPageId;
+		}
+
 	protected:
 		PageId m_pageId;
 

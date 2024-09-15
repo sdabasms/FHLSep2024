@@ -23,7 +23,6 @@ void Latch::AcquireLatch(LatchType type)
     // Requesting thread will busy wait until latch is acquired.
     //
     m_lock.Lock();
-
     switch (type)
     {
     case SH_LATCH:
@@ -32,7 +31,7 @@ void Latch::AcquireLatch(LatchType type)
         while (m_countExHolders > 0 || m_countExWaiters > 0)
         {
             m_lock.Unlock();
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
             m_lock.Lock();
         }
 
@@ -46,7 +45,7 @@ void Latch::AcquireLatch(LatchType type)
         while (m_countExHolders > 0 || m_countShHolders > 0)
         {
             m_lock.Unlock();
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
             m_lock.Lock();
         }
 
@@ -68,7 +67,6 @@ void Latch::Release()
     // Acquire spin lock
     //
     m_lock.Lock();
-
     if (m_countExHolders > 0)
     {
         // if EX_LATCH was taken, validate that owner is trying to release it.
@@ -92,26 +90,9 @@ void Latch::Release()
     m_lock.Unlock();
 }
 
-// Update SH_LATCH to EX_LATCH
+// Returns true if the caller holds the EX latch
 //
-void Latch::UpdateLatch()
+bool Latch::IsExLatched() const
 {
-    m_lock.Lock();
-    
-    assert(m_countShHolders > 0);
-    m_countShHolders--;
-    m_countExWaiters++;
-
-    while (m_countExHolders > 0 || m_countShHolders > 0)
-    {
-        m_lock.Unlock();
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        m_lock.Lock();
-    }
-
-    m_countExHolders++;
-    m_countExWaiters--;
-    m_ownerId = std::this_thread::get_id();
-
-    m_lock.Unlock();
+    return ((m_countExHolders == 1) && (std::this_thread::get_id() == m_ownerId));
 }

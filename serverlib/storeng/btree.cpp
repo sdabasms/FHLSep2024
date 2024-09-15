@@ -33,25 +33,23 @@ namespace SE
 		Buf* buf = nullptr;
 		bool rootChanged = true;
 
-		m_lock.Lock();
-		PageId rootPageId = m_rootPageID;
-		m_lock.Unlock();
-
 		// If root changes by the time we get the latch, retry
 		//
-		while (rootChanged)
+		do
 		{
-			if (buf != nullptr)
+			m_lock.Lock();
+			buf = GetGlobalBufferPool()->FindPage(m_rootPageID);
+			m_lock.Unlock();
+			buf->FixPage(type);
+			m_lock.Lock();
+			rootChanged = (m_rootPageID != buf->GetPage()->GetPageId());
+			m_lock.Unlock();
+			if (rootChanged)
 			{
 				buf->Release();
 			}
-			buf = GetGlobalBufferPool()->FindPage(rootPageId);
-			buf->FixPage(type);
+		} while (rootChanged);
 
-			m_lock.Lock();
-			rootChanged = (rootPageId != m_rootPageID);
-			m_lock.Unlock();
-		}
 		return buf;
 	}
 
@@ -70,7 +68,7 @@ namespace SE
 		std::deque<Buf*> latchedBufs;
 		// Find the insert point for the given value.
 		//
-		Buf* buf = Position(*val, latchedBufs, true);
+		Buf* buf = Position(*val, true, latchedBufs);
 
 		Page* leafPage = buf->GetPage();
 
@@ -86,7 +84,7 @@ namespace SE
 
 			// Reposition for insert
 			//
-			buf = Position(*val, latchedBufs, true);
+			buf = Position(*val, true, latchedBufs);
 			leafPage = buf->GetPage();
 		}
 
@@ -95,9 +93,10 @@ namespace SE
 		//
 		leafPage->InsertRow(val, m_numCols);
 
-		// Release latch on the page
+		// Only the page we have inserted on should be latched.
+		// Release latch on the page.
 		//
-		assert(latchedBufs.size() == 1);
+		assert((latchedBufs.size() == 1) && (latchedBufs.front() == buf));
 		latchedBufs.pop_front();
 		buf->Release();
 	}
@@ -114,7 +113,7 @@ namespace SE
 		if (buffer == nullptr)
 		{
 			assert(latchedBufs.empty());
-			buffer = Position(lastKey, latchedBufs, false);
+			buffer = Position(lastKey, false, latchedBufs);
 		}
 
 		assert(latchedBufs.size() == 1);
@@ -209,8 +208,6 @@ namespace SE
 
 			if (!page->IsLeafLevel()) // split internal page
 			{
-				assert(!page->IsLeafLevel());
-
 				Buf* newBuf = GetGlobalBufferPool()->GetNewPage(page->GetLevel());
 				Page* newPage = newBuf->GetPage();
 
@@ -272,6 +269,7 @@ namespace SE
 					Page* nextPage = nextBuf->GetPage();
 					nextPage->SetPrevPageId(newPage->GetPageId());
 					nextBuf->Release();
+					nextBuf = nullptr;
 				}
 				newPage->SetPrevPageId(page->GetPageId());
 				page->SetNextPageId(newPage->GetPageId());
@@ -305,7 +303,9 @@ namespace SE
 					parentPage->InsertIndexRow(rightVal, newPage->GetPageId());
 				}
 
-
+				// Only parentBuf, newBuf & buf must be latched
+				// Rest all the buffers must have been released by this time.
+				//
 				assert(latchedBufs.empty());
 
 				parentBuf->Release();
@@ -344,7 +344,7 @@ namespace SE
 
 	// Transfer rows from one page to another by choosing a split point.
 	//
-	Value BTree::TransferRows(Page* leftPage, Page* rightPage)
+	Value BTree::TransferRows(Page* leftPage, Page* rightPage) const
 	{
 		// Choose a split point on the page.
 		//
@@ -395,8 +395,12 @@ namespace SE
 	// Find the page into which a scan needs to go.
 	// This will return a page whose buf container is SH latched.
 	//
-	Buf* BTree::Position(Value val, std::deque<Buf*> &latchedBufs, bool forInsert)
+	Buf* BTree::Position(Value val, bool forInsert, std::deque<Buf*> &latchedBufs)
 	{
+		// We must not hold any latch when starting the crab walk.
+		//
+		assert(latchedBufs.empty());
+
 		// Start traversing from root page, take SH latch on it and
 		// then move on to the next page until reached to leaf page.
 		//
@@ -411,7 +415,7 @@ namespace SE
 		// If root page is a leaf page
 		// Use revert to unoptimized crab walk.
 		//
-		if (page->IsLeafLevel())
+		if (forInsert && page->IsLeafLevel())
 		{
 			latchedBufs.pop_front();
 			buf->Release();
@@ -467,10 +471,12 @@ namespace SE
 	//
 	Buf* BTree::PositionForInsert(Value val, std::deque<Buf*> &latchedBufs)
 	{
+		// We must not hold any latch when starting the crab walk.
+		//
+		assert(latchedBufs.empty());
 		// Start traversing from root page, take EX latch on it and
 		// then move on to the next page until reached to leaf page.
 		//
-		BufferPool* bufPool = GetGlobalBufferPool();
 		Buf* buf = LatchRoot(EX_LATCH);
 		latchedBufs.push_back(buf);
 

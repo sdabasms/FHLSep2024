@@ -63,7 +63,7 @@ namespace SE
 
 		// Transfer the rows from one page to another during split.
 		//
-		Value TransferRows(Page* leftPage, Page* rightPage);
+		Value TransferRows(Page* leftPage, Page* rightPage) const;
 		Value TransferIndexRows(Page* leftPage, Page* rightPage);
 
 		// Find the child page within an internal page during traversal.
@@ -72,7 +72,7 @@ namespace SE
 
 		// Find the page into which a scan needs to go.
 		//
-		Buf* Position(Value val, std::deque<Buf*> &latchedBufs, bool forInsert);
+		Buf* Position(Value val, bool forInsert, std::deque<Buf*> &latchedBufs);
 
 		// Find the page into which a insert needs to go.
 		//
