@@ -452,7 +452,6 @@ namespace SE
 		//
 		Buf* buf = LatchRoot(EX_LATCH);
 		Page* page = buf->GetPage();
-		buf->Release();
 
 		assert((page != nullptr) && (page->GetLevel() == m_rootLevel));
 
